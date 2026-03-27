@@ -1,0 +1,8 @@
+.env
+venv/
+vectorstore/
+data/uploads/
+mlruns/
+__pycache__/
+*.pyc
+.pytest_cache/
