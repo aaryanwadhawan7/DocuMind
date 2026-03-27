@@ -1,38 +1,43 @@
-name: DocuMind Ci
+name: DocuMind CI
 
+# This pipeline runs automatically on every push to main
+# and on every pull request targeting main
 on:
- push:
-  branches: [main]
- pull_request:
-  branches: [main]
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
 
 jobs:
- test:
-   runs-on: ubuntu-latest         
 
- steps:
-  - name: Checkout code
-    uses: actions/checkout@v4   
+  # Job 1 — run the tests
+  test:
+    runs-on: ubuntu-latest      
 
-  - name: Set up Python
-    uses: actions/setup-python@v5
-    with:
-      python-version: "3.11"
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4  
 
-  - name: Install dependencies
-    run: pip install -r requirements.txt
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
 
-  - name: Run tests
-    run: pytest tests/ -v
-    env:
-     GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }} 
+      - name: Install dependencies
+        run: pip install -r requirements.txt
 
- docker:
-   runs-on: ubuntu-latest
-   needs: test                     
+      - name: Run tests
+        run: pytest tests/ -v
+        env:
+          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}  
 
-   steps:
-    - uses: actions/checkout@v4
+  # Job 2 — build Docker image (only runs if tests pass)
+  docker:
+    runs-on: ubuntu-latest
+    needs: test                    
 
-    - name: Build Docker image
-      run: docker build -t documind:latest .
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build Docker image
+        run: docker build -t documind:latest .
