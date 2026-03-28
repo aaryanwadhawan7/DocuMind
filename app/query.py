@@ -17,7 +17,7 @@ VECTORSTORE_PATH = 'vectorstore/index' #path where all the vectors will be store
 EMBED_MODEL = 'sentence-transformers/all-MiniLM-L6-v2'
 LLM_MODEL = 'Llama-3.1-8B-Instant'
 
-mlflow.set_tracking_uri('http://localhost:5000')
+mlflow.set_tracking_uri("http://mlflow:5000")
 
 mlflow.set_experiment("documind-queries")
 
