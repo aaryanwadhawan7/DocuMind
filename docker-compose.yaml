@@ -8,6 +8,8 @@ services:
       - ./vectorstore:/app/vectorstore
     env_file: 
       - .env
+    environment:
+      - MLFLOW_TRACKING_URI = http://localhost:5000
 
   mlflow:
     image: ghcr.io/mlflow/mlflow:v2.11.1 

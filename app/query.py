@@ -17,9 +17,11 @@ VECTORSTORE_PATH = 'vectorstore/index' #path where all the vectors will be store
 EMBED_MODEL = 'sentence-transformers/all-MiniLM-L6-v2'
 LLM_MODEL = 'Llama-3.1-8B-Instant'
 
-mlflow.set_tracking_uri("http://mlflow:5000")
+MLFLOW_URI = os.getenv('MLFLOW_TRACKING_URI')
 
-mlflow.set_experiment("documind-queries")
+if MLFLOW_URI:
+    mlflow.set_tracking_uri("http://mlflow:5000")
+    mlflow.set_experiment("documind-queries")
 
 def answer_question(question: str) -> dict:
 
@@ -53,22 +55,23 @@ def answer_question(question: str) -> dict:
         return_source_documents=True,
         chain_type="stuff"
     )
-
-    with mlflow.start_run():
-
-        # log_param = settings used (things that don't change mid-run)
-        mlflow.log_param("embed_model", EMBED_MODEL)
-        mlflow.log_param("llm_model",   LLM_MODEL)
-        mlflow.log_param("chunk_k",     3)
-        mlflow.log_param("temperature", 0)
-        mlflow.log_param("question",    question)
-
-        start_time = time.time()
-        result     = chain.invoke({"query": question})
-        latency    = round(time.time() - start_time, 3) 
-
-        mlflow.log_metric("latency_seconds",     latency)
-        mlflow.log_metric("source_chunks_used",  len(result["source_documents"]))
+    
+    if MLFLOW_URI:
+        with mlflow.start_run():
+            
+            # log_param = settings used (things that don't change mid-run)
+            mlflow.log_param("embed_model", EMBED_MODEL)
+            mlflow.log_param("llm_model",   LLM_MODEL)
+            mlflow.log_param("chunk_k",     3)
+            mlflow.log_param("temperature", 0)
+            mlflow.log_param("question",    question)
+            
+            start_time = time.time()
+            result     = chain.invoke({"query": question})
+            latency    = round(time.time() - start_time, 3) 
+            
+            mlflow.log_metric("latency_seconds",     latency)
+            mlflow.log_metric("source_chunks_used",  len(result["source_documents"]))
 
     sources = sorted(set([
         doc.metadata.get("page", 0) + 1

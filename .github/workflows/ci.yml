@@ -30,6 +30,8 @@ jobs:
         run: pytest tests/ -v
         env:
           GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}  
+          # MLFLOW_TRACKING_URI is deliberately not set here
+          # This tells us to run tests without looking for MLflow
 
   # Job 2 — build Docker image (only runs if tests pass)
   docker:
