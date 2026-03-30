@@ -9,7 +9,7 @@ services:
     env_file: 
       - .env
     environment:
-      - MLFLOW_TRACKING_URI = http://localhost:5000
+      - MLFLOW_TRACKING_URI=http://localhost:5000
 
   mlflow:
     image: ghcr.io/mlflow/mlflow:v2.11.1 
@@ -23,3 +23,26 @@ services:
       --port 5000
       --backend-store-uri sqlite:////mlruns/mlflow.db
       --default-artifact-root /mlruns/artifacts
+
+  prometheus:
+    image: prom/prometheus:latest
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+
+  grafana:
+    image: grafana/grafana:latest
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    volumes:
+      - grafana_data:/var/lib/grafana
+    depends_on:
+      - prometheus
+
+volumes:
+  grafana_data:

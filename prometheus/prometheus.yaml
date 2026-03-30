@@ -1,0 +1,9 @@
+global:
+ scrape_interval: 15s 
+ evaluation_enterval: 15s
+
+scrape_config:
+ - job_name: 'documind-api'
+   static-configs:
+    - targets : ['api:8000']
+   metrics_path: '/metrics'

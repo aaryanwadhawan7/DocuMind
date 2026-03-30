@@ -8,6 +8,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from app.ingest import ingest_pdf
 from app.query import answer_question
+from prometheus_fastapi_instrumentator import Instrumentator
 
 app = FastAPI(title="DocuMind", version="1.0")
 
@@ -19,6 +20,11 @@ app.add_middleware(
 )
 
 UPLOAD_DIR = "data/uploads"
+
+Instrumentator().instrument(app).expose(app)
+# Instrumentator : creates a monitoring employee
+# instrument(app) : tells to monitor the FastAPI app
+# expose(app) : creates a /metrics endpoint for Prometheus to visit every 15 secs for analytics
 
 @app.get("/health")
 def health():
