@@ -9,7 +9,10 @@ services:
     env_file: 
       - .env
     environment:
-      - MLFLOW_TRACKING_URI=http://localhost:5000
+      - MLFLOW_TRACKING_URI=http://mlflow:5000
+    depends_on:
+      - mlflow
+    restart: on-failure
 
   mlflow:
     image: ghcr.io/mlflow/mlflow:v2.11.1 
@@ -23,13 +26,14 @@ services:
       --port 5000
       --backend-store-uri sqlite:////mlruns/mlflow.db
       --default-artifact-root /mlruns/artifacts
+      --workers 1
 
   prometheus:
     image: prom/prometheus:latest
     ports:
       - "9090:9090"
     volumes:
-      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./prometheus:/etc/prometheus
     command:
       - '--config.file=/etc/prometheus/prometheus.yml'
 
