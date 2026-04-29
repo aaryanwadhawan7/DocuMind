@@ -15,8 +15,11 @@ st.set_page_config(
 
 # Locally: defaults to localhost 8000
 # In Docker: we set API_URI = http://api:8000 in docker-compose
-API_URI = os.getenv('API_URI', 'http://localhost:8000')
+API_URI = os.getenv('API_URL', 'http://localhost:8000')
 
+if "pdf_uploaded" not in st.session_state:
+    st.session_state.pdf_uploaded = False
+    
 # Initialize session state - these run on first page reload
 # After that keys exists so these lines are being skipped 
 if "messages" not in st.session_state:
@@ -30,7 +33,7 @@ if "pdf_name" not in st.session_state:
 # Section 3 : Header
 
 st.title("📄 DocuMind")
-st.markdown("Upload a PDF and ask question about it in Plain English.")
+st.markdown("Upload a PDF and ask question about it.")
 st.divider()
 
 # Section 4 : Two column layout
@@ -82,3 +85,80 @@ with col_left:
 
             except requests.exceptions.ConnectionError:
                 st.error("Cannot connect to API. Is Docker running?")
+
+# Session 6 : Right column : Chat Interface
+
+with col_right:
+    st.subheader('2. Ask questions')
+    
+    if st.session_state.pdf_uploaded:
+        st.info(f"Active {st.session_state.pdf_name}")
+    else:
+        st.warning("Pdf not Uploaded!")
+
+    for message in st.session_state.messages:
+        with st.chat_message(message["role"]):
+            st.markdown(message['content'])
+
+    question = st.chat_input(
+        "Ask a question about your PDF...",
+        disabled=not st.session_state.pdf_uploaded
+    )
+
+    # This blocks only run user submit a question
+    if question:
+
+        with st.chat_message('user'):
+            st.markdown(question)
+        
+        st.session_state.messages.append({
+            "role" : "user",
+            "content" : question
+        })
+
+    # Call Requests to FastAPI 
+    with st.chat_message('assistant'):
+        with st.spinner("Thinking..."):
+            try:
+                response = requests.post(
+                    f"{API_URI}/ask",
+                    json = {"question" : question},
+                    timeout = 60 
+                )
+
+                if response.status_code == 200:
+                    data = response.json()
+                    answer = data['answer']
+                    pages = data['source_pages']
+                    latency = data.get("latency_seconds", "N/A")
+                
+                    st.markdown(answer)
+
+                    st.caption(
+                        f"📖 Sources: pages {pages}  ·  ⏱ {latency}s"
+                    )
+
+                    # Save answer to history
+                    full_answer = (
+                       f"{answer}\n\n"
+                       f"*📖 Sources: pages {pages} · ⏱ {latency}s*"
+                    )
+                
+                    st.session_state.messages.append({
+                       "role":    "assistant",
+                       "content": full_answer
+                    })
+                else:
+                    error_msg = f"Error: {response.status_code}: {response.text}"
+
+            except requests.exceptions.Timeout:
+                st.error("Timed out after 60s. Try a shorter question.")
+            
+            except requests.exceptions.ConnectionError:
+                st.error("Cannot connect to API. Is Docker running?")
+
+if st.session_state.messages:
+        st.divider()
+        if st.button("🗑 Clear chat"):
+            st.session_state.messages = []
+            st.rerun()
