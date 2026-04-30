@@ -33,7 +33,7 @@ if "pdf_name" not in st.session_state:
 # Section 3 : Header
 
 st.title("📄 DocuMind")
-st.markdown("Upload a PDF and ask question about it.")
+st.markdown("Upload a PDF and ask questions about it.")
 st.divider()
 
 # Section 4 : Two column layout
