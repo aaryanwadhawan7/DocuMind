@@ -6,6 +6,7 @@ from langchain_community.embeddings import HuggingFaceEmbeddings
 from langchain_community.vectorstores import FAISS
 from langchain_groq import ChatGroq
 import mlflow
+from langchain_classic.prompts import PromptTemplate
 
 from dotenv import load_dotenv
 from langchain_classic.chains.retrieval_qa.base import RetrievalQA
@@ -38,13 +39,40 @@ def answer_question(question: str) -> dict:
         allow_dangerous_deserialization=True  # required by LangChain for local files
     )
 
-    retriever = vectorstore.as_retriever(search_kwargs={"k": 3})
+    retriever = vectorstore.as_retriever(search_kwargs={"k": 8})
 
     # temperature = 0 means consistent answers
     llm = ChatGroq(
         api_key=os.getenv("GROQ_API_KEY"),
         model_name=LLM_MODEL, 
         temperature=0
+    )
+
+    prompt_template = """
+       You are an intelligent assistant.
+
+       Use ONLY the provided context to answer the question.
+
+       Make your answer:
+        - Detailed
+        - Structured (use bullet points if helpful)
+        - Clear and well-explained
+
+       If the answer is not in the context, say:
+       "I could not find this in the document."
+
+       Context:
+       {context}
+
+       Question:
+       {question}
+
+       Answer:
+    """
+
+    PROMPT = PromptTemplate(
+        template=prompt_template,
+        input_variables=["context", "question"]
     )
 
     """
@@ -56,7 +84,8 @@ def answer_question(question: str) -> dict:
         llm=llm,
         retriever=retriever,
         return_source_documents = True,
-        chain_type="stuff"
+        chain_type="stuff",
+        chain_type_kwargs={"prompt": PROMPT}
     )
     
     # This ensures result and latency always exist
@@ -70,7 +99,7 @@ def answer_question(question: str) -> dict:
                 # log_param = settings used (things that don't change mid-run)
                 mlflow.log_param("embed_model", EMBED_MODEL)
                 mlflow.log_param("llm_model",   LLM_MODEL)
-                mlflow.log_param("chunk_k",     3)
+                mlflow.log_param("chunk_k",     5)
                 mlflow.log_param("temperature", 0)
                 mlflow.log_param("question",    question)
                 mlflow.log_metric("latency_seconds",     latency)

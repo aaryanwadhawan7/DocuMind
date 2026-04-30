@@ -14,8 +14,8 @@ def ingest_pdf (doc_path: str):
 
     # Split Document into multiple chunks
     text_splitter = RecursiveCharacterTextSplitter(
-        chunk_size = 500,
-        chunk_overlap = 50
+        chunk_size = 800,
+        chunk_overlap = 150
     )
 
     chunks = text_splitter.split_documents(document)
