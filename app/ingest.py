@@ -22,7 +22,7 @@ def ingest_pdf (doc_path: str):
 
     # Embedddings
     embedding = HuggingFaceEmbeddings(
-        model_name="sentence-transformers/all-MiniLM-L6-v2"
+        model_name="sentence-transformers/paraphrase-MiniLM-L3-v2"
     )
 
     # Store embeddings in vector store

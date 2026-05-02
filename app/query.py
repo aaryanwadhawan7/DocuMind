@@ -15,7 +15,7 @@ load_dotenv() # loads GROQ_API_KEY from .env file
 
 VECTORSTORE_PATH = 'vectorstore/index' #path where all the vectors will be stored
 #these variables can be easily changed if someone wants to find out which model is best/efficient
-EMBED_MODEL = 'sentence-transformers/all-MiniLM-L6-v2'
+EMBED_MODEL = 'sentence-transformers/paraphrase-MiniLM-L3-v2'
 LLM_MODEL = 'Llama-3.1-8B-Instant'
 
 MLFLOW_URI = os.getenv('MLFLOW_TRACKING_URI','http://mlflow:5000')
