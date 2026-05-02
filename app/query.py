@@ -24,8 +24,11 @@ MLFLOW_URI = os.getenv('MLFLOW_TRACKING_URI','http://mlflow:5000')
 # print (f"MLFLOW_URI: {MLFLOW_URI}")
 
 if MLFLOW_URI:
-    mlflow.set_tracking_uri(MLFLOW_URI)
-    mlflow.set_experiment("documind-queries")
+    try:
+        mlflow.set_tracking_uri(MLFLOW_URI)
+        mlflow.set_experiment("documind-queries")
+    except:
+        pass
 
 def answer_question(question: str) -> dict:
 
