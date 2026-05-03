@@ -7,7 +7,6 @@ from langchain_community.vectorstores import FAISS
 from langchain_groq import ChatGroq
 import mlflow
 from langchain_classic.prompts import PromptTemplate
-
 from dotenv import load_dotenv
 from langchain_classic.chains.retrieval_qa.base import RetrievalQA
 
@@ -23,18 +22,23 @@ MLFLOW_URI = os.getenv('MLFLOW_TRACKING_URI','http://mlflow:5000')
 # fixing bug 
 # print (f"MLFLOW_URI: {MLFLOW_URI}")
 
-if MLFLOW_URI:
-    try:
-        mlflow.set_tracking_uri(MLFLOW_URI)
-        mlflow.set_experiment("documind-queries")
-    except:
-        pass
+def get_embeddings():
+    return HuggingFaceEmbeddings(
+        model_name=EMBED_MODEL,
+        model_kwargs={"device": "cpu"},
+        encode_kwargs={"normalize_embeddings": True}
+    )
 
 def answer_question(question: str) -> dict:
 
-    embeddings = HuggingFaceEmbeddings(
-        model_name=EMBED_MODEL
-    )
+    if MLFLOW_URI:
+        try:
+            mlflow.set_tracking_uri(MLFLOW_URI)
+            mlflow.set_experiment("documind-queries")
+        except:
+            pass
+
+    embeddings = get_embeddings()
 
     vectorstore = FAISS.load_local(
         VECTORSTORE_PATH,

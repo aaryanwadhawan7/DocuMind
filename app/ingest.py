@@ -7,6 +7,15 @@ from langchain_community.embeddings import HuggingFaceEmbeddings
 
 VECTORSTORE_PATH = 'vectorstore/index'
 
+def get_embeddings():
+    # Use a tiny model that fits in 512MB
+    # all-MiniLM-L6-v2 is ~90MB on disk, ~200MB in RAM — fits fine
+    return HuggingFaceEmbeddings(
+        model_name="sentence-transformers/all-MiniLM-L6-v2",
+        model_kwargs={"device": "cpu"},
+        encode_kwargs={"normalize_embeddings": True}
+    )
+
 def ingest_pdf (doc_path: str):
     # Load Document
     loader = PyPDFLoader(file_path = doc_path)
@@ -21,13 +30,13 @@ def ingest_pdf (doc_path: str):
     chunks = text_splitter.split_documents(document)
 
     # Embedddings
-    embedding = HuggingFaceEmbeddings(
-        model_name="sentence-transformers/paraphrase-MiniLM-L3-v2"
-    )
+    embedding = get_embeddings()
 
     # Store embeddings in vector store
     vector_store = FAISS.from_documents(chunks, embedding)
     vector_store.save_local(VECTORSTORE_PATH)
+
+    return len(chunks)
 
     
 
