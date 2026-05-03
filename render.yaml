@@ -7,6 +7,4 @@ services:
     envVars:
       - key: GROQ_API_KEY
         sync: false
-      - key: MLFLOW_TRACKING_URI
-        value: ""
     healthCheckPath: /health
