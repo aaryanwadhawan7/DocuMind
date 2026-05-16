@@ -15,3 +15,4 @@ requests
 prometheus-fastapi-instrumentator
 streamlit
 groq
+mlflow
