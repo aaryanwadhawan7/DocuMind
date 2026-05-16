@@ -1,35 +1,38 @@
 # ingest.py : takes a PDF path, creates a FIASS vector store from it.
-
+import os
 from langchain_community.document_loaders import PyPDFLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_community.vectorstores import FAISS
-from langchain_community.embeddings import HuggingFaceEmbeddings
+from langchain_huggingface import HuggingFaceEndpointEmbeddings
+from dotenv import load_dotenv
 
 VECTORSTORE_PATH = 'vectorstore/index'
+EMBED_MODEL = "sentence-transformers/all-MiniLM-L6-v2"
+
+load_dotenv()
+
 
 def get_embeddings():
-    # Use a tiny model that fits in 512MB
-    # all-MiniLM-L6-v2 is ~90MB on disk, ~200MB in RAM — fits fine
-    return HuggingFaceEmbeddings(
-        model_name="sentence-transformers/all-MiniLM-L6-v2",
-        model_kwargs={"device": "cpu"},
-        encode_kwargs={"normalize_embeddings": True}
+    return HuggingFaceEndpointEmbeddings(
+        huggingfacehub_api_token=os.getenv("HF_API_KEY"),
+        model=EMBED_MODEL
     )
 
-def ingest_pdf (doc_path: str):
+
+def ingest_pdf(doc_path: str):
     # Load Document
-    loader = PyPDFLoader(file_path = doc_path)
+    loader = PyPDFLoader(file_path=doc_path)
     document = loader.load()
 
     # Split Document into multiple chunks
     text_splitter = RecursiveCharacterTextSplitter(
-        chunk_size = 800,
-        chunk_overlap = 150
+        chunk_size=500,
+        chunk_overlap=50
     )
 
     chunks = text_splitter.split_documents(document)
 
-    # Embedddings
+    # Embeddings
     embedding = get_embeddings()
 
     # Store embeddings in vector store
@@ -37,7 +40,3 @@ def ingest_pdf (doc_path: str):
     vector_store.save_local(VECTORSTORE_PATH)
 
     return len(chunks)
-
-    
-
-

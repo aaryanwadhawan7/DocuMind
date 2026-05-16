@@ -1,0 +1,17 @@
+langchain
+langchain-community
+langchain-groq
+langchain-huggingface
+langchain-text-splitters
+langchain-core
+langchain-classic
+faiss-cpu
+pypdf
+python-multipart
+python-dotenv
+fastapi
+uvicorn
+requests
+prometheus-fastapi-instrumentator
+streamlit
+groq
