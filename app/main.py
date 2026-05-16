@@ -21,6 +21,9 @@ app.add_middleware(
 
 UPLOAD_DIR = "data/uploads"
 
+os.makedirs(UPLOAD_DIR, exist_ok=True)
+os.makedirs("vectorstore", exist_ok=True)
+
 Instrumentator().instrument(app).expose(app)
 # Instrumentator : creates a monitoring employee
 # instrument(app) : tells to monitor the FastAPI app
