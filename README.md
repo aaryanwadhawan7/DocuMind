@@ -2,7 +2,6 @@
 
 Upload any PDF and ask questions in plain English. Built as a production-grade MLOps project.
 
-**Live Demo:** https://aaryanwadhawan7-documind-streamlit-app-mgozal.streamlit.app/  
 **API Docs:**  https://documind-api-uha8.onrender.com/docs <br>
 **GitHub:**    https://github.com/aaryanwadhawan7/DocuMind
 
