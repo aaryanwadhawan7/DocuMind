@@ -4,7 +4,7 @@ import os
 import time
 from dotenv import load_dotenv
 
-from langchain_huggingface import HuggingFaceEndpointEmbeddings
+from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_community.vectorstores import FAISS
 from langchain_groq import ChatGroq
 from langchain_core.prompts import PromptTemplate
@@ -18,15 +18,15 @@ VECTORSTORE_PATH = "vectorstore/index"
 
 EMBED_MODEL = "sentence-transformers/all-MiniLM-L6-v2"
 
-LLM_MODEL = "llama-3.1-8b-instant"
+LLM_MODEL = "openai/gpt-oss-20b"
 
 MLFLOW_URI = os.getenv("MLFLOW_TRACKING_URI")
 
 
 def get_embeddings():
-    return HuggingFaceEndpointEmbeddings(
-        huggingfacehub_api_token=os.getenv("HF_API_KEY"),
-        model=EMBED_MODEL
+    return HuggingFaceEmbeddings(
+        model_name=EMBED_MODEL,
+        model_kwargs={"device": "cpu"},
     )
 
 

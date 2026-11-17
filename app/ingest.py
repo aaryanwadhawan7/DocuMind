@@ -3,7 +3,7 @@ import os
 from langchain_community.document_loaders import PyPDFLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_community.vectorstores import FAISS
-from langchain_huggingface import HuggingFaceEndpointEmbeddings
+from langchain_huggingface import HuggingFaceEmbeddings
 from dotenv import load_dotenv
 
 VECTORSTORE_PATH = 'vectorstore/index'
@@ -13,9 +13,9 @@ load_dotenv()
 
 
 def get_embeddings():
-    return HuggingFaceEndpointEmbeddings(
-        huggingfacehub_api_token=os.getenv("HF_API_KEY"),
-        model=EMBED_MODEL
+    return HuggingFaceEmbeddings(
+        model_name=EMBED_MODEL,
+        model_kwargs={"device": "cpu"},
     )
 
 
